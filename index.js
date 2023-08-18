@@ -1,7 +1,27 @@
-const { ApolloServer } = require('apollo-server')
+const { ApolloServer, MockList } = require('apollo-server')
 const { readFileSync } = require('fs')
 
 let typeDefs = readFileSync('./typeDefs.graphql', 'UTF-8')
-const server = new ApolloServer({ typeDefs, mock: true })
+const resolvers = {}
 
-server.listen()
+const mocks = {
+  Query: () => ({
+    totalPhotos: () => 42,
+    allPhotos: () => new MockList([5, 10]),
+    Photo: () => ({
+      name: 'sample photo',
+      description: null
+    })
+  })
+}
+
+
+const server = new ApolloServer({
+  typeDefs,
+  resolvers,
+  mocks,
+})
+
+server.listen({ port: 4000}, () =>
+  console.log(`GraphQL Server running at http://localhost:4000`)
+)
